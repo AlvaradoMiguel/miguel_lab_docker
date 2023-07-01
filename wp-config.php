@@ -12,16 +12,16 @@
 // ** Configuración de la base de datos ** //
 
 /** El nombre de la base de datos de WordPress */
-define( 'DB_NAME', 'miguel_db' );
+define( 'DB_NAME', 'nombre_base_de_datos' );
 
 /** Tu nombre de usuario de MySQL */
-define( 'DB_USER', 'admin' );
+define( 'DB_USER', 'usuario_control_base_datos' );
 
 /** Tu contraseña de MySQL */
-define( 'DB_PASSWORD', 'Duoc.2023' );
+define( 'DB_PASSWORD', 'clave_maestra_base_datos' );
 
 /** Host de la base de datos de MySQL */
-define( 'DB_HOST', 'miguel-cluster-instance-1.ccboct1queaq.us-east-1.rds.amazonaws.com' );
+define( 'DB_HOST', 'ACÁ DEBES INCORPORAR EL PUNTO DE ENLACE DE LA BASE DE DATOS' );
 
 /** Codificación de caracteres para la base de datos */
 define( 'DB_CHARSET', 'utf8mb4' );
@@ -32,14 +32,14 @@ define( 'DB_COLLATE', '' );
 // ** Claves de seguridad únicas ** //
 
 /** Clave secreta de autenticación */
-define( 'AUTH_KEY',         'Duoc.2023' );
-define( 'SECURE_AUTH_KEY',  'Duoc.2023' );
-define( 'LOGGED_IN_KEY',    'Duoc.2023' );
-define( 'NONCE_KEY',        'Duoc.2023' );
-define( 'AUTH_SALT',        'Duoc.2023' );
-define( 'SECURE_AUTH_SALT', 'Duoc.2023' );
-define( 'LOGGED_IN_SALT',   'Duoc.2023' );
-define( 'NONCE_SALT',       'Duoc.2023' );
+define( 'AUTH_KEY',         'Clave' );
+define( 'SECURE_AUTH_KEY',  'clave_maestra_base_datos' );
+define( 'LOGGED_IN_KEY',    'clave_maestra_base_datos' );
+define( 'NONCE_KEY',        'clave_maestra_base_datos' );
+define( 'AUTH_SALT',        'clave_maestra_base_datos' );
+define( 'SECURE_AUTH_SALT', 'clave_maestra_base_datos' );
+define( 'LOGGED_IN_SALT',   'clave_maestra_base_datos' );
+define( 'NONCE_SALT',       'clave_maestra_base_datos' );
 
 // ** Prefijo de la tabla de la base de datos ** //
 $table_prefix = 'wp_';
