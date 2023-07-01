@@ -2,7 +2,7 @@
 
 ![N|Solid](https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_DuocUC.svg/2560px-Logo_DuocUC.svg.png)
 
-Con este laboratorio aprederás a contruir una imagen de contenedor utilizando una Instancia de AWS como medio de trabajo, a esta instancia se le provisionan tanto del entorno de Docker y Git para gestionar la imagen, y luego propagarla hacia el sistema AWS ECR, que se encargara de gestionar el contenedor y levantar el entorno que desplegará el contenido paquetizado en el contenedor. Para finalmente, montar esta infraestructura detras de un balanceador de carga que conectara el contenedor y una base de datos para levantar la aplicación de WordPress.
+Con este laboratorio aprederás a contruir una Imágen de contenedor utilizando una Instancia de AWS como medio de trabajo, a esta instancia se le provisionan tanto del entorno de Docker y Git para gestionar la Imágen, y luego propagarla hacia el sistema AWS ECR, que se encargara de gestionar el contenedor y levantar el entorno que desplegará el contenido paquetizado en el contenedor. Para finalmente, montar esta infraestructura detras de un balanceador de carga que conectara el contenedor y una base de datos para levantar la aplicación de WordPress.
 
 Utilizaremos lo siguientes recursos:
 
@@ -18,7 +18,17 @@ Utilizaremos lo siguientes recursos:
 - MariaDB para gestión de opciones de base datos RDS
 
 
-## Paso de creación de Infraestructura en Amazos AWS
+## Pasos de creación de Infraestructura en Amazos AWS
+
+Para el desarrollo de esta actividad se disponen de los siguientes materiales de trabajo a traves de un repositorio de GitHub
+- Archivo README.md que contiene las instrucciones generales del laboratorio
+- Archivo Dockerfile, que contiene las intrucciones de descarga para la Imágen de WordPress
+- Archivo wp-config.php, que contiene los paramatros básicos para el despliegue de WordPress y su asociación a la Base de Datos MySQL en Amazon RDS
+
+No olvidar editar los parametros del archivo, tiene las referencias para un montaje básico de WordPress con la documentacion oficial del sitio :
+ ```sh
+https://wordpress.org/documentation/article/editing-wp-config-php/ 
+```
 
 ## Creación y asignacion de recursos para la Instancia EC2
 
@@ -89,4 +99,61 @@ NOTA: La creación de la base de datos demora, ten paciencia.
 17. En configuración adicional, mantener el puerto 3306
 18. En Autenticación de bases de datos, seleccionar "Autenticación con contraseña"
 19. Dar click al boton "Crear base de datos"
+
+## Conectar a la instancia de base de datos, crear una nueva BD y editar permisos de usuarios
+
+1. Volver a la conexión SSH hacia la instancia EC2
+2. En el promt del usuario ec2-user, conectar a la BD usando la siguiente sintaxis
+
+```sh
+mysql -h punto_enlace_rds_mysql -P 3306 -u admin -p
+```
+Donde el punto de conexión corresponde al punto de enlace de la base de datos RDS MySQL
+
+3. Crear la nueva base de datos
+```sh
+create database 'nuevo_nombre_bd';
+```
+4. Otorgar privilegios al usurio creado en la instancia MySQL, y cerrar la conexión remota a la BD.
+```sh
+GRANT ALL PRIVILEGES ON 'nuevo_nombre_bd'.* TO 'nombre_usuario';
+quit
+```
+
+## Decargar el repositorio de GitHub y Compilar Imágen con Docker
+
+1. En la ruta Raíz del usuario ec2-user crear un directorio de trabajo que contendra los repositorios locales, puedes usar cualquier nombre para tu referencia. Y luego ingresar en él.
+   
+```sh
+sudo mkdir "nombredirectorio"
+cd "nombredirectorio"
+```
+2. Usando los comandos de Git, clonar el repositorio en GitHub, y luego ingresar al nuevo directorio para editar los archivos base del laboratorio.
+
+```sh
+sudo git clone https://github.com/AlvaradoMiguel/miguel_lab_docker
+cd miguel_lab_docker
+```
+3. En este punto ya puedes revisar los archivos "Dockerfile" y "wp-config.php", usando el editor te texto de linux "VIM" puedes editar los archivos.
+- Debes editar el archivo wp-config.php para ingresar las variables de la base de datos y credenciales de acceso que usara WordPress para llegar a la base de datos MySQL de Amazon RDS
+- El archivo Dockerfile tiene la configuración básica de funcionamiento para compilar la imagen de WordPress desde su repositorio original, la edición es de libre eleccion para personalizarlo.
   
+```sh
+sudo vim wp-config.php
+```
+4. Con los archivos Dockerfile y wp-config.php editados, procedemos a construir el contenedor usando Docker
+
+```sh
+sudo docker build -t 'nombre_imagen' .
+```
+5. Ejecutando y probando el nuevo contenedor
+
+Mediante la linea de comandos ingresamos los parametros necesarios para ejecutar el contenedor con un nombre local que se mostrará en nuestro sistema, y que hace referencia al nombre de la imagen recién compilada.
+Además, en la sintaxis se pueden apreciar los puertos de red, locales y remotos, por los que se expondra el servicio de WordPress en la Instancia EC2. El puerto del lado de la instancia es el que se configuro dentro del grupo de seguridad de la instancia en AWS EC2.
+
+```sh
+docker run -d -p 80:80 --name='nombre_local_contenedor 'nombre_imagen'
+```
+
+6. 
+   
