@@ -5,28 +5,28 @@
 Con este laboratorio aprederás a contruir una Imágen de contenedor utilizando una Instancia de AWS como medio de trabajo, a esta instancia se le provisionan tanto del entorno de Docker y Git para gestionar la Imágen, y luego propagarla hacia el sistema AWS ECR, que se encargara de gestionar el contenedor y levantar el entorno que desplegará el contenido paquetizado en el contenedor. Para finalmente, montar esta infraestructura detras de un balanceador de carga que conectara el contenedor y una base de datos para levantar la aplicación de WordPress.
 
 Utilizaremos lo siguientes recursos:
-
-    - Instancias EC2
-    - Dentro de la Instancia EC2 se debe instalar herramientas Docker y Git
-    - Grupos de Seguridad de AWS
-    - VPC de AWS
-    - Application Load Balancer de AWS
-    - ECS de AWS
-    - ECR de AWS
-    - Bases de datos RDS - En este caso, MySQL
-    - App Putty para conexiones SSH
-    - MariaDB para gestión de opciones de base datos RDS
+- Instancias EC2
+- Dentro de la Instancia EC2 se debe instalar herramientas Docker y Git
+- Grupos de Seguridad de AWS
+- VPC de AWS
+- Application Load Balancer de AWS
+- ECS de AWS
+- ECR de AWS
+- Bases de datos RDS - En este caso, MySQL
+- App Putty para conexiones SSH
+- MariaDB para gestión de opciones de base datos RDS
 
 
 ## Pasos de creación de Infraestructura en Amazos AWS
 
 Para el desarrollo de esta actividad se disponen de los siguientes materiales de trabajo a traves de un repositorio de GitHub
-    - Archivo README.md que contiene las instrucciones generales del laboratorio
-    - Archivo Dockerfile, que contiene las intrucciones de descarga para la Imágen de WordPress
-    - Archivo wp-config.php, que contiene los paramatros básicos para el despliegue de WordPress y su asociación a la Base de Datos MySQL en Amazon RDS
-    - Instrucciones para la instalación de AWS Tool (Necesario para los despliegues del contenedor)
+- Archivo README.md que contiene las instrucciones generales del laboratorio
+- Archivo Dockerfile, que contiene las intrucciones de descarga para la Imágen de WordPress
+- Archivo wp-config.php, que contiene los paramatros básicos para el despliegue de WordPress y su asociación a la Base de Datos MySQL en Amazon RDS
+- Instrucciones para la instalación de AWS Tool (Necesario para los despliegues del contenedor)
 
 No olvidar editar los parametros del archivo, tiene las referencias para un montaje básico de WordPress con la documentacion oficial del sitio :
+
  ```sh
 https://wordpress.org/documentation/article/editing-wp-config-php/ 
 ```
@@ -36,25 +36,25 @@ https://wordpress.org/documentation/article/editing-wp-config-php/
 1. ingresa tu cuenta de AWS
 2. Seleccionar la región de trabajo en EE.UU. Este (Norte de Virginia) us-east-1
 3. Crear una instancia
-     - Asignar nombre a la instancia
-     - Seleccionar AMI de Amazon Linux 2023
-     - Selecccionar como tipo de instancia, t2.micro, sin editar
-     - Usar la clave de inicio de sesión por defecto, Vockey, para poder conectar por SSH a la instancia
-     - En la configuraciónde red, usar la VPC Predeterminada
-     - Solicitar la asignación de una IP Pública
-     - Crear un nuevo grupo de seguridad con un nuevo nombre, piensa en algo referencial para asociarlo a las instancias EC2
-     - En las reglas de entrada del grupo de seguridad, manten la de SSH para todo origen y agrega una segunda regla permitiendo el puerto 80 (HTTP) desde cualquier Origen.
-     - No editar las opciones de almacenamiento, con el espacio asignado por defecto es suficiente
-     - El resto de opciones se mantiene sin editar
-     - Finalizar con el lanzamiento de la Instancia
+- Asignar nombre a la instancia
+- Seleccionar AMI de Amazon Linux 2023
+- Selecccionar como tipo de instancia, t2.micro, sin editar
+- Usar la clave de inicio de sesión por defecto, Vockey, para poder conectar por SSH a la instancia
+- En la configuraciónde red, usar la VPC Predeterminada
+- Solicitar la asignación de una IP Pública
+- Crear un nuevo grupo de seguridad con un nuevo nombre, piensa en algo referencial para asociarlo a las instancias EC2
+- En las reglas de entrada del grupo de seguridad, manten la de SSH para todo origen y agrega una segunda regla permitiendo el puerto 80 (HTTP) desde cualquier Origen.
+- No editar las opciones de almacenamiento, con el espacio asignado por defecto es suficiente
+- El resto de opciones se mantiene sin editar
+- Finalizar con el lanzamiento de la Instancia
 
-4. Cuando la instancia de EC2 este en ejecución, realizar la conexion por SSH para realizar la configuración
-     - Descargar la clave vockey en formato PPK desde los detalles de conexion de la cuenta AWS, se utilizará para conectarse a través de la aplicacion Putty
-     - Usando Putty, conecta a la instancia usando la IP Pública asignada a la Instaancia.
-     - Como usuario de conexión se utiliza el usuario de la instancia : ec2-user
-     - Con la conexion establecida, continuamos con las aplicaciones de Docker, Git y MariaDB para cargar herramientas de gestión de Base de Datos
+5. Cuando la instancia de EC2 este en ejecución, realizar la conexion por SSH para realizar la configuración
+- Descargar la clave vockey en formato PPK desde los detalles de conexion de la cuenta AWS, se utilizará para conectarse a través de la aplicacion Putty
+- Usando Putty, conecta a la instancia usando la IP Pública asignada a la Instaancia.
+- Como usuario de conexión se utiliza el usuario de la instancia : ec2-user
+- Con la conexion establecida, continuamos con las aplicaciones de Docker, Git y MariaDB para cargar herramientas de gestión de Base de Datos
 
-5. Actualizar el sistema y sus componentes
+7. Actualizar el sistema y sus componentes
 
 ```sh
 sudo yum update -y
@@ -176,28 +176,28 @@ Es la misma IP que se uso en la conexión SSH, pero ahora puesta en el navegador
 ## Creando la Infraestructura de AWS para soportar y desplegar el contenedor
 
 1. Crear repositorio ECR (Amazon Elastic Container Registry)
-    - Ingresar en buscador de AWS al Servicio ECR, y luego presionar el boton "Comenzar"
-    - En las opciones solo editar 2 de ellas, la de mantener la exposición del contenido de manera privada, y la de asignar un nombre al recurso.
-    - Presionar el boton "Crear Repositorio"
+- Ingresar en buscador de AWS al Servicio ECR, y luego presionar el boton "Comenzar"
+- En las opciones solo editar 2 de ellas, la de mantener la exposición del contenido de manera privada, y la de asignar un nombre al recurso.
+- Presionar el boton "Crear Repositorio"
 
-2. Configurar permisos en la instancia para conectarse al repositorio de AWS ECR
+3. Configurar permisos en la instancia para conectarse al repositorio de AWS ECR
    
 En la raiz del usuario ec2-user crear el siguiente directorio
 
-  ```sh
+```sh
 sudo mkdir ~/.aws/
-  ```
-    - Luego crear el archivo de credenciales usando la llave AWS CLI que se obtiene desde los detalles de conexioón de la consola AWS
+```
+- Luego crear el archivo de credenciales usando la llave AWS CLI que se obtiene desde los detalles de conexioón de la consola AWS
 
 ```sh
 sudo vim ~/.aws/credentials
   ```
- 
-    - Dentro de este archivo se copia la llave de acceso, correspondientes al "aws_access_key_id" y al "aws_secret_access_key"
-    - Ahora se deben seguir las instrucciones de "Comandos de envío" que tiene el repositorio de ECR, esta opción esta entre los botenes de acción del repositorio.
-    - Ingresar al directorio que Git sincronizo localmente en la instancia y continuar con los siguiente comandos. (Estos comandos incluyen valores del montaje de pruebas, debes obtener tus propias sintaxs en base a tu propia configuración)
 
- ```sh
+- Dentro de este archivo se copia la llave de acceso, correspondientes al "aws_access_key_id" y al "aws_secret_access_key"
+- Ahora se deben seguir las instrucciones de "Comandos de envío" que tiene el repositorio de ECR, esta opción esta entre los botenes de acción del repositorio.
+- Ingresar al directorio que Git sincronizo localmente en la instancia y continuar con los siguiente comandos. (Estos comandos incluyen valores del montaje de pruebas, debes obtener tus propias sintaxs en base a tu propia configuración)
+
+```sh
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 455604117431.dkr.ecr.us-east-1.amazonaws.com
 
 docker build -t repo_docker_wp_mah .
