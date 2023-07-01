@@ -208,31 +208,28 @@ docker push 455604117431.dkr.ecr.us-east-1.amazonaws.com/repo_docker_wp_mah:late
   ```
 
 3. Crear el balanceador de carga y sus objetivos (target)
-    - Crear los "Target Group" para el balanceador, dentro de las opciones de la instancia EC2
-    - Que sea del tipo Instancias
-    - Ingresar un nombre para el "Target Group"
-    - Indicar el protocolo HTTP con el puerto 80
-    - Verificar que la VPN corresponda a la del resto de los recursos
-    - Presionar el boton "Siguiente"
-    - Seleccionar las instancias que participar del grupo de objetivos del balanceador
-    - Presionar el boton "Include as pendin below"
-    - Presionar el boton " Create Target Group"
-    - Ahora, en el menú lateral, buscar el acceso a los Balanceadores de carga
-    - Presionar el boton "Create load balancer"
-    - Que sea del tipo ALB (Application Load Balancer), y presionar el botón "Crer"
-    - Asignar un nombre al balanceador
-    - En Network Mapping confirmar la VPC y seleccionar todas las subredes asociadas a las Instancias EC2
-    - En los Grupos de Seguridad, seleccionar todos los grupos asociados a las Intancias EC2 y RDS que esten asociadas al ejercicio. Desmarcando el grupo "Default"
-    - En Listeners and routing asociar el grupo de objetivos previamente creado
-    - Y presionar el boton "Create Load Balancer"
 
-4. Crear el Cluster de ECS (Elastic Container Services) con funciones FareGate
-    - Asignar un nombre al cluster
-    - Verificar que este asociado a la red VPC de la instancia EC2 y RDS, y que contenga las subredes asociadas a ellos
-    - En el apartado de Infraestructura, verificar que este marcada la opción AWS Fargate (sin servidor)
-    - Presionar el boton "Crear"
+- Ahora, en el menú lateral, buscar el acceso a los Balanceadores de carga
+- Presionar el boton "Create load balancer"
+- Que sea del tipo ALB (Application Load Balancer), y presionar el botón "Crear"
+- Asignar un nombre al balanceador
+- En Network Mapping confirmar la VPC y seleccionar todas las subredes asociadas a las Instancias EC2
+- En los Grupos de Seguridad, seleccionar todos los grupos asociados a las Intancias EC2 y RDS que esten asociadas al ejercicio. Desmarcando el grupo "Default"
+- En Listeners and routing crear los "Target Group" para el balanceador (Se abrirá una nueva ventana, no cerrar la anterior ya que volveremos)
+- Que sea del tipo Instancias
+- Ingresar un nombre para el "Target Group"
+- Indicar el protocolo HTTP con el puerto 80
+- Verificar que la VPC corresponda a la del resto de los recursos
+- Presionar el boton "Siguiente"
+- Seleccionar las instancias que participar del grupo de objetivos del balanceador
+- Presionar el boton "Include as pendin below"
+- Presionar el boton "Create Target Group"
+- Volver a la ventana de creación del balanceador, refrescar las opciones del Listener y seleccionar el grupo de objetivos que recien creamos
+- Y presionar el boton "Create Load Balancer"
+- Cuando el Balanceador este listo, volvemos a las opciones del balanceador para eliminar el listener vigente que creamos anteriormente, y dejar que en las etapas posteriores se vuelva a crear. Se observa un error con esta cuenta de AWS para Estudiantes que obliga a realizar este paso.
+  
 
-5. Crear una defición de tareas para el Cluster
+3. Crear una defición de tareas para el Cluster
     - Presionar el boton "Crear una nueva definición de tarea"
     - Asignar un nombre descriptivo a la familia de definición de tareas
     - Especifique el nombre del contenedor que desplegará y la dirección URI del repositorio previamente creado
@@ -246,7 +243,15 @@ docker push 455604117431.dkr.ecr.us-east-1.amazonaws.com/repo_docker_wp_mah:late
     - Las siguiente opciones se mantienen sin modificaciones y presionamos el boton "Siguiente"
     - Validamos la configuracion mediante el resumen y presionamos el boton "Crear"
 
-6. Crear una defición de Servicios para el Cluster
+
+4. Crear el Cluster de ECS (Elastic Container Services) con funciones FareGate
+    - Asignar un nombre al cluster
+    - Verificar que este asociado a la red VPC de la instancia EC2 y RDS, y que contenga las subredes asociadas a ellos
+    - En el apartado de Infraestructura, verificar que este marcada la opción AWS Fargate (sin servidor)
+    - Presionar el boton "Crear"
+
+
+5. Crear una defición de Servicios para el Cluster
     - Dentro de las opciones del Cluster recien creado, vamos a la pestaña "Servicios" y presionamos el boton "Crear"
     - En Configuración informática seleccionamos "Estrategia de proveedor de capacidad"
     - En Estrategia de proveedor de capacidad, selecionamos FARGTE
@@ -259,9 +264,9 @@ docker push 455604117431.dkr.ecr.us-east-1.amazonaws.com/repo_docker_wp_mah:late
     - En los grupos de seguridad, marcar todos los grupos involucrados en la arquitectura del EC2 y RDS. Y desmarcamos el grupo "Default"
     - En la sección de Balanceo de carga, seleccionamos el tipo de "Balanceador de carga de aplicaciones"
     - Utilizamos el balanceador existente que creamos pasos atrás, el que también trae el contenedor asociado a él.
-    - Utilizar el agente de escucha existente para el puerto 80 http
+    - Crear un nuevo agente de escucha para el puerto 80 http
     - Crear un nuevo grupo de destino y asignar un nombre descriptivo
-    - Confirmar el Patón de ruta en " / " y asignar el valor "1" a la Orden de evaluación
+    - Confirmar la ruta de comprobación de estado " / " 
     - Ahora presionamos el boton "Crear"
 
 ## Revisar el estado de la implementación a través de CloudFormation y pruebas finales
