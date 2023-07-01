@@ -24,6 +24,7 @@ Para el desarrollo de esta actividad se disponen de los siguientes materiales de
 - Archivo README.md que contiene las instrucciones generales del laboratorio
 - Archivo Dockerfile, que contiene las intrucciones de descarga para la Imágen de WordPress
 - Archivo wp-config.php, que contiene los paramatros básicos para el despliegue de WordPress y su asociación a la Base de Datos MySQL en Amazon RDS
+- Instrucciones para la instalación de AWS Tool (Necesario para los despliegues del contenedor)
 
 No olvidar editar los parametros del archivo, tiene las referencias para un montaje básico de WordPress con la documentacion oficial del sitio :
  ```sh
@@ -65,9 +66,11 @@ sudo yum update -y
 sudo yum install git -y
 ```
 
-7. Instalar y habilitar Docker en la Instancia
+7. Instalar y habilitar permisos de ejecucioón privilegiados para Docker en la Instancia
 ```sh
 sudo yum install docker
+sudo usermod -a -G docker ec2-user
+newgrp docker
 ```
 8. Instalar y habilitar MariaDB en la Instancia
 ```sh
@@ -146,14 +149,68 @@ sudo vim wp-config.php
 ```sh
 sudo docker build -t 'nombre_imagen' .
 ```
-5. Ejecutando y probando el nuevo contenedor
+Este proceso se conecta a los repositorios informados en la configuracion para descargar todo lo necesario para compilar los recursos que usará el contenedor.
+
+5. Ejecutando el nuevo contenedor
 
 Mediante la linea de comandos ingresamos los parametros necesarios para ejecutar el contenedor con un nombre local que se mostrará en nuestro sistema, y que hace referencia al nombre de la imagen recién compilada.
 Además, en la sintaxis se pueden apreciar los puertos de red, locales y remotos, por los que se expondra el servicio de WordPress en la Instancia EC2. El puerto del lado de la instancia es el que se configuro dentro del grupo de seguridad de la instancia en AWS EC2.
 
 ```sh
-docker run -d -p 80:80 --name='nombre_local_contenedor 'nombre_imagen'
+sudo docker run -d -p 80:80 --name='nombre_local_contenedor 'nombre_imagen'
+```
+Con el siguiente comando puedes probar si la ejecución resulto exitosa, ya que enlistara los contenedores que estan en ejecución.
+
+```sh
+sudo docker ps
+```
+6. Probando el nuevo contenedor
+
+Ahora, si la ejecución resultó existosa, nos conectaremos al servicio de WordPress que esta en el contenedor, accediendo a el mediante la IP Pública de la Instancia
+Si carga la pagina de configuración inicial de WordPress, contianuamos !
+
+```sh
+Es la misma IP que se uso en la conexión SSH, pero ahora puesta en el navegador.
 ```
 
-6. 
+## Creando la Infraestructura de AWS para soportar y desplegar el contenedor
+
+1. Crear repositorio ECR (Amazon Elastic Container Registry)
+ - Ingresar en buscador de AWS al Servicio ECR, y luego presionar el boton "Comenzar"
+ - En las opciones solo editar 2 de ellas, la de mantener la exposición del contenido de manera privada, y la de asignar un nombre al recurso.
+ - Presionar el boton "Crear Repositorio"
+
+2. Configurar permisos en la instancia para conectarse al repositorio de AWS ECR
    
+En la raiz del usuario ec2-user crear el siguiente directorio
+
+  ```sh
+sudo mkdir ~/.aws/
+  ```
+ - Luego crear el archivo de credenciales usando la llave AWS CLI que se obtiene desde los detalles de conexioón de la consola AWS
+
+```sh
+sudo vim ~/.aws/credentials
+  ```
+ 
+  - Dentro de este archivo se copia la llave de acceso, correspondientes al "aws_access_key_id" y al "aws_secret_access_key"
+  - Ahora se deben seguir las instrucciones de "Comandos de envío" que tiene el repositorio de ECR, esta opción esta entre los botenes de acción del repositorio.
+  - Ingresar al directorio que Git sincronizo localmente en la instancia y continuar con los siguiente comandos. (Estos comandos incluyen valores del montaje de pruebas, debes obtener tus propias sintaxs en base a tu propia configuración)
+
+ ```sh
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 455604117431.dkr.ecr.us-east-1.amazonaws.com
+
+docker build -t repo_docker_wp_mah .
+
+docker tag repo_docker_wp_mah:latest 455604117431.dkr.ecr.us-east-1.amazonaws.com/repo_docker_wp_mah:latest
+
+docker push 455604117431.dkr.ecr.us-east-1.amazonaws.com/repo_docker_wp_mah:latest
+  ```
+
+3. Crear el Cluster de ECS (Elastic Container Services) con funciones FareGate
+  - Asignar un nombre al cluster
+  - Verificar que este asociado a la red VPC de la instancia EC2 y RDS, y que contenga las subredes asociadas a ellos
+  - En el apartado de Infraestructura, verificar que este marcada la opción AWS Fargate (sin servidor)
+  - Presionar el boton "Crear"
+
+4. 
