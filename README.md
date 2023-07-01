@@ -6,25 +6,25 @@ Con este laboratorio aprederás a contruir una Imágen de contenedor utilizando 
 
 Utilizaremos lo siguientes recursos:
 
-- Instancias EC2
-- Dentro de la Instancia EC2 se debe instalar herramientas Docker y Git
-- Grupos de Seguridad de AWS
-- VPC de AWS
-- Application Load Balancer de AWS
-- ECS de AWS
-- ECR de AWS
-- Bases de datos RDS - En este caso, MySQL
-- App Putty para conexiones SSH
-- MariaDB para gestión de opciones de base datos RDS
+    - Instancias EC2
+    - Dentro de la Instancia EC2 se debe instalar herramientas Docker y Git
+    - Grupos de Seguridad de AWS
+    - VPC de AWS
+    - Application Load Balancer de AWS
+    - ECS de AWS
+    - ECR de AWS
+    - Bases de datos RDS - En este caso, MySQL
+    - App Putty para conexiones SSH
+    - MariaDB para gestión de opciones de base datos RDS
 
 
 ## Pasos de creación de Infraestructura en Amazos AWS
 
 Para el desarrollo de esta actividad se disponen de los siguientes materiales de trabajo a traves de un repositorio de GitHub
-- Archivo README.md que contiene las instrucciones generales del laboratorio
-- Archivo Dockerfile, que contiene las intrucciones de descarga para la Imágen de WordPress
-- Archivo wp-config.php, que contiene los paramatros básicos para el despliegue de WordPress y su asociación a la Base de Datos MySQL en Amazon RDS
-- Instrucciones para la instalación de AWS Tool (Necesario para los despliegues del contenedor)
+    - Archivo README.md que contiene las instrucciones generales del laboratorio
+    - Archivo Dockerfile, que contiene las intrucciones de descarga para la Imágen de WordPress
+    - Archivo wp-config.php, que contiene los paramatros básicos para el despliegue de WordPress y su asociación a la Base de Datos MySQL en Amazon RDS
+    - Instrucciones para la instalación de AWS Tool (Necesario para los despliegues del contenedor)
 
 No olvidar editar los parametros del archivo, tiene las referencias para un montaje básico de WordPress con la documentacion oficial del sitio :
  ```sh
@@ -36,23 +36,23 @@ https://wordpress.org/documentation/article/editing-wp-config-php/
 1. ingresa tu cuenta de AWS
 2. Seleccionar la región de trabajo en EE.UU. Este (Norte de Virginia) us-east-1
 3. Crear una instancia
-    - Asignar nombre a la instancia
-    - Seleccionar AMI de Amazon Linux 2023
-    - Selecccionar como tipo de instancia, t2.micro, sin editar
-    - Usar la clave de inicio de sesión por defecto, Vockey, para poder conectar por SSH a la instancia
-    - En la configuraciónde red, usar la VPC Predeterminada
-    - Solicitar la asignación de una IP Pública
-    - Crear un nuevo grupo de seguridad con un nuevo nombre, piensa en algo referencial para asociarlo a las instancias EC2
-    - En las reglas de entrada del grupo de seguridad, manten la de SSH para todo origen y agrega una segunda regla permitiendo el puerto 80 (HTTP) desde cualquier Origen.
-    - No editar las opciones de almacenamiento, con el espacio asignado por defecto es suficiente
-    - El resto de opciones se mantiene sin editar
-    - Finalizar con el lanzamiento de la Instancia
+     - Asignar nombre a la instancia
+     - Seleccionar AMI de Amazon Linux 2023
+     - Selecccionar como tipo de instancia, t2.micro, sin editar
+     - Usar la clave de inicio de sesión por defecto, Vockey, para poder conectar por SSH a la instancia
+     - En la configuraciónde red, usar la VPC Predeterminada
+     - Solicitar la asignación de una IP Pública
+     - Crear un nuevo grupo de seguridad con un nuevo nombre, piensa en algo referencial para asociarlo a las instancias EC2
+     - En las reglas de entrada del grupo de seguridad, manten la de SSH para todo origen y agrega una segunda regla permitiendo el puerto 80 (HTTP) desde cualquier Origen.
+     - No editar las opciones de almacenamiento, con el espacio asignado por defecto es suficiente
+     - El resto de opciones se mantiene sin editar
+     - Finalizar con el lanzamiento de la Instancia
 
 4. Cuando la instancia de EC2 este en ejecución, realizar la conexion por SSH para realizar la configuración
-    - Descargar la clave vockey en formato PPK desde los detalles de conexion de la cuenta AWS, se utilizará para conectarse a través de la aplicacion Putty
-    - Usando Putty, conecta a la instancia usando la IP Pública asignada a la Instaancia.
-    - Como usuario de conexión se utiliza el usuario de la instancia : ec2-user
-    - Con la conexion establecida, continuamos con las aplicaciones de Docker, Git y MariaDB para cargar herramientas de gestión de Base de Datos
+     - Descargar la clave vockey en formato PPK desde los detalles de conexion de la cuenta AWS, se utilizará para conectarse a través de la aplicacion Putty
+     - Usando Putty, conecta a la instancia usando la IP Pública asignada a la Instaancia.
+     - Como usuario de conexión se utiliza el usuario de la instancia : ec2-user
+     - Con la conexion establecida, continuamos con las aplicaciones de Docker, Git y MariaDB para cargar herramientas de gestión de Base de Datos
 
 5. Actualizar el sistema y sus componentes
 
@@ -176,9 +176,9 @@ Es la misma IP que se uso en la conexión SSH, pero ahora puesta en el navegador
 ## Creando la Infraestructura de AWS para soportar y desplegar el contenedor
 
 1. Crear repositorio ECR (Amazon Elastic Container Registry)
- - Ingresar en buscador de AWS al Servicio ECR, y luego presionar el boton "Comenzar"
- - En las opciones solo editar 2 de ellas, la de mantener la exposición del contenido de manera privada, y la de asignar un nombre al recurso.
- - Presionar el boton "Crear Repositorio"
+    - Ingresar en buscador de AWS al Servicio ECR, y luego presionar el boton "Comenzar"
+    - En las opciones solo editar 2 de ellas, la de mantener la exposición del contenido de manera privada, y la de asignar un nombre al recurso.
+    - Presionar el boton "Crear Repositorio"
 
 2. Configurar permisos en la instancia para conectarse al repositorio de AWS ECR
    
@@ -187,15 +187,15 @@ En la raiz del usuario ec2-user crear el siguiente directorio
   ```sh
 sudo mkdir ~/.aws/
   ```
- - Luego crear el archivo de credenciales usando la llave AWS CLI que se obtiene desde los detalles de conexioón de la consola AWS
+    - Luego crear el archivo de credenciales usando la llave AWS CLI que se obtiene desde los detalles de conexioón de la consola AWS
 
 ```sh
 sudo vim ~/.aws/credentials
   ```
  
-  - Dentro de este archivo se copia la llave de acceso, correspondientes al "aws_access_key_id" y al "aws_secret_access_key"
-  - Ahora se deben seguir las instrucciones de "Comandos de envío" que tiene el repositorio de ECR, esta opción esta entre los botenes de acción del repositorio.
-  - Ingresar al directorio que Git sincronizo localmente en la instancia y continuar con los siguiente comandos. (Estos comandos incluyen valores del montaje de pruebas, debes obtener tus propias sintaxs en base a tu propia configuración)
+    - Dentro de este archivo se copia la llave de acceso, correspondientes al "aws_access_key_id" y al "aws_secret_access_key"
+    - Ahora se deben seguir las instrucciones de "Comandos de envío" que tiene el repositorio de ECR, esta opción esta entre los botenes de acción del repositorio.
+    - Ingresar al directorio que Git sincronizo localmente en la instancia y continuar con los siguiente comandos. (Estos comandos incluyen valores del montaje de pruebas, debes obtener tus propias sintaxs en base a tu propia configuración)
 
  ```sh
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 455604117431.dkr.ecr.us-east-1.amazonaws.com
@@ -207,10 +207,72 @@ docker tag repo_docker_wp_mah:latest 455604117431.dkr.ecr.us-east-1.amazonaws.co
 docker push 455604117431.dkr.ecr.us-east-1.amazonaws.com/repo_docker_wp_mah:latest
   ```
 
-3. Crear el Cluster de ECS (Elastic Container Services) con funciones FareGate
-  - Asignar un nombre al cluster
-  - Verificar que este asociado a la red VPC de la instancia EC2 y RDS, y que contenga las subredes asociadas a ellos
-  - En el apartado de Infraestructura, verificar que este marcada la opción AWS Fargate (sin servidor)
-  - Presionar el boton "Crear"
+3. Crear el balanceador de carga y sus objetivos (target)
+    - Crear los "Target Group" para el balanceador, dentro de las opciones de la instancia EC2
+    - Que sea del tipo Instancias
+    - Ingresar un nombre para el "Target Group"
+    - Indicar el protocolo HTTP con el puerto 80
+    - Verificar que la VPN corresponda a la del resto de los recursos
+    - Presionar el boton "Siguiente"
+    - Seleccionar las instancias que participar del grupo de objetivos del balanceador
+    - Presionar el boton "Include as pendin below"
+    - Presionar el boton " Create Target Group"
+    - Ahora, en el menú lateral, buscar el acceso a los Balanceadores de carga
+    - Presionar el boton "Create load balancer"
+    - Que sea del tipo ALB (Application Load Balancer), y presionar el botón "Crer"
+    - Asignar un nombre al balanceador
+    - En Network Mapping confirmar la VPC y seleccionar todas las subredes asociadas a las Instancias EC2
+    - En los Grupos de Seguridad, seleccionar todos los grupos asociados a las Intancias EC2 y RDS que esten asociadas al ejercicio. Desmarcando el grupo "Default"
+    - En Listeners and routing asociar el grupo de objetivos previamente creado
+    - Y presionar el boton "Create Load Balancer"
 
-4. 
+4. Crear el Cluster de ECS (Elastic Container Services) con funciones FareGate
+    - Asignar un nombre al cluster
+    - Verificar que este asociado a la red VPC de la instancia EC2 y RDS, y que contenga las subredes asociadas a ellos
+    - En el apartado de Infraestructura, verificar que este marcada la opción AWS Fargate (sin servidor)
+    - Presionar el boton "Crear"
+
+5. Crear una defición de tareas para el Cluster
+    - Presionar el boton "Crear una nueva definición de tarea"
+    - Asignar un nombre descriptivo a la familia de definición de tareas
+    - Especifique el nombre del contenedor que desplegará y la dirección URI del repositorio previamente creado
+    - Confirmar el Mapeo de Puerto al puerto 80 y presionamos el boton "Siguiente"
+    - En Entorno, sección Entorno de la aplicación, seleccionamos o mantenemos la opición AWS Fargate
+    - Sistema operativo/arquitectura Linux
+    - Tamaño de la tarea: 2 vCPU y 4 GB de memoria
+    - En Rol de tarea elegimos un rol con permisos dentro de los recursos, en este caso usaremos el de nombre "LabRole"
+    - En Rol de ejecución de tareas, tambien seleccionamos a "LabRole"
+    - Almacenamiento efímero lo dejamos por defecto en 21GB
+    - Las siguiente opciones se mantienen sin modificaciones y presionamos el boton "Siguiente"
+    - Validamos la configuracion mediante el resumen y presionamos el boton "Crear"
+
+6. Crear una defición de Servicios para el Cluster
+    - Dentro de las opciones del Cluster recien creado, vamos a la pestaña "Servicios" y presionamos el boton "Crear"
+    - En Configuración informática seleccionamos "Estrategia de proveedor de capacidad"
+    - En Estrategia de proveedor de capacidad, selecionamos FARGTE
+    - Mantenems la Versión de la plataforma en "LATEST"
+    - En Configuración de implementación, seleccionamos Servicio
+    - Dentro de la Definición de tarea, en el campo "Familia", seleccionar nuestra tarea creada previamente, junto a la opción de revisón mas reciente.
+    - Asignamos un nombre identificatorio al servicio
+    - Mantenemos el modo Réplica con una sola Tarea deseada
+    - En el apartador de Redes confirmar que la VPN corresponda al resto de los recursos al igual que las subredes en ella
+    - En los grupos de seguridad, marcar todos los grupos involucrados en la arquitectura del EC2 y RDS. Y desmarcamos el grupo "Default"
+    - En la sección de Balanceo de carga, seleccionamos el tipo de "Balanceador de carga de aplicaciones"
+    - Utilizamos el balanceador existente que creamos pasos atrás, el que también trae el contenedor asociado a él.
+    - Utilizar el agente de escucha existente para el puerto 80 http
+    - Crear un nuevo grupo de destino y asignar un nombre descriptivo
+    - Confirmar el Patón de ruta en " / " y asignar el valor "1" a la Orden de evaluación
+    - Ahora presionamos el boton "Crear"
+
+## Revisar el estado de la implementación a través de CloudFormation y pruebas finales
+
+1. En el buscador de recursos de AWS buscar el de CloudFormation, en él nos aparece el progreso de la creación de la Infraestructura. Cuando este completado, vamos otra vez al balaceador de carga en la sección de administración de recursos EC2
+2. Entre los Balanceadores de carga existentes buscamos el que corresponde a nuestro WordPress y copiamos la dirección DNS.
+3. Pegamos esta dirección en el navegador y debería traernos el portal de configuración de WordPress en su primera ejecución.
+4. Si te permite configurar los parametros iniciale de WordPress, el laboratorio resulto sin problemas
+
+## Miguel Alvarado - mi.alvaradoh@duocuc.cl
+
+
+   
+   
