@@ -2,17 +2,20 @@
 
 ![N|Solid](https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Logo_DuocUC.svg/2560px-Logo_DuocUC.svg.png)
 
-Con este laboratorio aprederás y podras implementar un contenedor con imagen de WordPress y administrador por la plataforma de gestión de contenedores de ECS de Amazon ECS.
-Dentro de la infraestructura usada en AWS, segun los requerimiento del laboratorio, se debe considerar lo siguiente:
+Con este laboratorio aprederás a contruir una imagen de contenedor utilizando una Instancia de AWS como medio de trabajo, a esta instancia se le provisionan tanto del entorno de Docker y Git para gestionar la imagen, y luego propagarla hacia el sistema AWS ECR, que se encargara de gestionar el contenedor y levantar el entorno que desplegará el contenido paquetizado en el contenedor. Para finalmente, montar esta infraestructura detras de un balanceador de carga que conectara el contenedor y una base de datos para levantar la aplicación de WordPress.
+
+Utilizaremos lo siguientes recursos:
 
 - Instancias EC2
 - Dentro de la Instancia EC2 se debe instalar herramientas Docker y Git
-- Grupos de Seguridad
-- VPC
-- Application Load Balancer
-- ECS
-- ECR
-- Bases de datos RDS - En este caso, Aurora MySQL
+- Grupos de Seguridad de AWS
+- VPC de AWS
+- Application Load Balancer de AWS
+- ECS de AWS
+- ECR de AWS
+- Bases de datos RDS - En este caso, MySQL
+- App Putty para conexiones SSH
+- MariaDB para gestión de opciones de base datos RDS
 
 
 ## Paso de creación de Infraestructura en Amazos AWS
@@ -20,9 +23,7 @@ Dentro de la infraestructura usada en AWS, segun los requerimiento del laborator
 ## Creación y asignacion de recursos para la Instancia EC2
 
 1. ingresa tu cuenta de AWS
-   
 2. Seleccionar la región de trabajo en EE.UU. Este (Norte de Virginia) us-east-1
-   
 3. Crear una instancia
     - Asignar nombre a la instancia
     - Seleccionar AMI de Amazon Linux 2023
@@ -40,43 +41,52 @@ Dentro de la infraestructura usada en AWS, segun los requerimiento del laborator
     - Descargar la clave vockey en formato PPK desde los detalles de conexion de la cuenta AWS, se utilizará para conectarse a través de la aplicacion Putty
     - Usando Putty, conecta a la instancia usando la IP Pública asignada a la Instaancia.
     - Como usuario de conexión se utiliza el usuario de la instancia : ec2-user
-      
-## Creacion de la Base de Datos RDS AURORA en AWS
+    - Con la conexion establecida, continuamos con las aplicaciones de Docker, Git y MariaDB para cargar herramientas de gestión de Base de Datos
+
+5. Actualizar el sistema y sus componentes
+
+```sh
+sudo yum update -y
+```
+
+6. Instalar y habilitar Git en la Instancia
+
+```sh
+sudo yum install git -y
+```
+
+7. Instalar y habilitar Docker en la Instancia
+```sh
+sudo yum install docker
+```
+8. Instalar y habilitar MariaDB en la Instancia
+```sh
+sudo yum install mariadb105-server.x86_64
+```
+
+Por el momento, pasemos al siguiente paso. Luego volveremos a la instancia para editar parametros de la BD de Amazon RDS
+
+
+## Creacion de la Base de Datos RDS MySQL en AWS
 
 NOTA: La creación de la base de datos demora, ten paciencia.
 
 1. Ir a Amazon RDS
 2. Hacer click en crear base de datos
 3. Seleccionar Creación estándar
-4. en tipo de motor seleccionar Aurora(MySQL Compatible)
-5. En plantillas elegir desarrollo y pruebas
-6. Identificador del clúster de base de datos debemos escribir un nombre a eleccion 
-7. En credenciales elegir el nombre de usuario maestro (como es test dejaremos admin)
-
-8. Contraseña maestra elegir una  debe tener al menos 8 caracteres(esto se utilizara para conectarnos a la bd luego)
-
-9. En Cluster storage configuration elegir Aurora Standard (esto es para los costos bajos)
-
-10. En Configuración de la instancia elegir Clases con ráfagas e elegir la que consideremos apropiada la small es una bd con 2GB de memoria algo para un sitio estandar con no tanto requisito o flujo de usuario
-
-11. En Disponibilidad y durabilidad si deseo crear algo resilente a fallos elegir crear nodo si no es el caso y es solo test elegir No crear una réplica de Aurora
-
-12. En Conectividad elegir Conectarse a un recurso informático de EC2 esto es para establecer una conexion interna con nuestra instancia ec2 con el contenedor y crear los Security Group de conexion de RDS (todas las demas opciones dejar por defecto)
-
-13. En Autenticación de bases de datos elegir Autenticación con contraseña
-
-14. dejar todo lo demas por defecto y hacer click en crear base de datos
-
-1. Actualizar el sistema y sus componentes
-```sh
-sudo yum update -y
-```
-2. Instalar Git en la Instancia
-```sh
-sudo yum install git
-```
-3. Instalar Docker en la Instancia
-```sh
-sudo yum install git
-```
-   
+4. En tipo de motor, seleccionar MySQL
+5. En plantillas, seleccionar Capa Gratuita
+6. En configuracion, escribir el identificador de la BD con un nombre a elección
+8. En credenciales elegir el nombre de usuario maestro (no se recomienda dejar el usuario por defecto)
+9. Definir una contraseña maestra la base de datos
+10. En Configuración de la instancia, mantener la opción por defecto
+11. En Almacenamiento, mantener la opción por defecto.
+12. Ahora en Conectividad, seleccionar "Conectarse a recurso informático EC2"
+13. Seleccionar la instancia EC2 que creaste previamente.
+14. En las opciones de VPN, usar tu segmentacion por defecto, debe compartir recursos con la Instancia EC2.
+15. Como Grupo de Subredes, lo dejamos en "Configuración automática"
+16. En Grupo de Seguridad VPC, creamos uno nuevo y damos un nombre referencial para asociarlo
+17. En configuración adicional, mantener el puerto 3306
+18. En Autenticación de bases de datos, seleccionar "Autenticación con contraseña"
+19. Dar click al boton "Crear base de datos"
+  
